@@ -21,7 +21,7 @@ struct Edge {
     Edge *next;
 };
 
-Graph *Graph_alloc();
+Graph *Graph_alloc(void);
 void   Graph_free(Graph *g);
 
 Vertex *Graph_findVertexByLabel(Graph *g, int label);

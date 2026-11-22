@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include "Graph.h"
 
-Graph *Graph_alloc() {
+Graph *Graph_alloc(void) {
     Graph *g = malloc(sizeof(Graph));
 
     if (g) {
