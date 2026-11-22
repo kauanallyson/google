@@ -1,255 +1,255 @@
+#include "Graph.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include "Graph.h"
 
 Graph *Graph_alloc(void) {
-    Graph *g = malloc(sizeof(Graph));
+  Graph *g = malloc(sizeof(Graph));
 
-    if (g) {
-        g->n = 0;
-        g->first = NULL;
-        g->last = NULL;
-    }
+  if (g) {
+    g->n = 0;
+    g->first = NULL;
+    g->last = NULL;
+  }
 
-    return g;
+  return g;
 }
 
 void Graph_free(Graph *g) {
-    Vertex *v = NULL, *nextv = NULL;
-    Edge *e = NULL, *nexte = NULL;
-    
-    if (g) {
-        v = g->first;
+  Vertex *v = NULL, *nextv = NULL;
+  Edge *e = NULL, *nexte = NULL;
 
-        while (v) {
-            nextv = v->next;
-            e = v->first;
-            
-            while (e) {
-                nexte = e->next;
-                free(e);
-                e = nexte;
-            }
+  if (g) {
+    v = g->first;
 
-            free(v);
-            v = nextv;
-        }
+    while (v) {
+      nextv = v->next;
+      e = v->first;
 
-        free(g);
+      while (e) {
+        nexte = e->next;
+        free(e);
+        e = nexte;
+      }
+
+      free(v);
+      v = nextv;
     }
+
+    free(g);
+  }
 }
 
 void Graph_addVertex(Graph *g, int label, void *value) {
-    Vertex *new = NULL;
+  Vertex *new = NULL;
 
-    if (g) {
-        new = malloc(sizeof(Vertex));
-        new->first = NULL;
-        new->last = NULL;
-        new->next = NULL;
-        new->n = 0;
-        new->label = label;
-        new->value = value;
+  if (g) {
+    new = malloc(sizeof(Vertex));
+    new->first = NULL;
+    new->last = NULL;
+    new->next = NULL;
+    new->n = 0;
+    new->label = label;
+    new->value = value;
 
-        if (g->n == 0)
-            g->first = new; 
-        else
-            g->last->next = new;
+    if (g->n == 0)
+      g->first = new;
+    else
+      g->last->next = new;
 
-        g->last = new;
-        g->n++;
-    }
+    g->last = new;
+    g->n++;
+  }
 }
 
 Vertex *Graph_findVertexByLabel(Graph *g, int label) {
-    Vertex *v = NULL;
+  Vertex *v = NULL;
 
-    if (g && g->n) {
+  if (g && g->n) {
 
-        v = g->first;
+    v = g->first;
 
-        while (v) {
-            if (v->label == label)
-                return v;
+    while (v) {
+      if (v->label == label)
+        return v;
 
-            v = v->next;
-        }
+      v = v->next;
     }
+  }
 
-    return NULL;
+  return NULL;
 }
 
-Vertex *Graph_findVertexByValue(Graph *g, void *value, int (*cmp)(void*, void*)) {
-    Vertex *v = NULL;
+Vertex *Graph_findVertexByValue(Graph *g, void *value,
+                                int (*cmp)(void *, void *)) {
+  Vertex *v = NULL;
 
-    if (g && g->n && cmp) {
+  if (g && g->n && cmp) {
 
-        v = g->first;
+    v = g->first;
 
-        while (v) {
-            if (cmp(v->value, value) == 0)
-                return v;
+    while (v) {
+      if (cmp(v->value, value) == 0)
+        return v;
 
-            v = v->next;
-        }
+      v = v->next;
     }
+  }
 
-    return NULL;
+  return NULL;
 }
 
 void Graph_addEdge(Graph *g, int v0, int v1) {
-    Edge *new = NULL;
-    Vertex *tail = NULL;
-    Vertex *head = NULL;
+  Edge *new = NULL;
+  Vertex *tail = NULL;
+  Vertex *head = NULL;
 
-    if (g && g->n) {
-        tail = Graph_findVertexByLabel(g, v0);
-        head = Graph_findVertexByLabel(g, v1);
+  if (g && g->n) {
+    tail = Graph_findVertexByLabel(g, v0);
+    head = Graph_findVertexByLabel(g, v1);
 
-        if (tail && head) {
-            new = malloc(sizeof(Edge));
-            new->next = NULL;
-            new->tail = tail;
-            new->head = head;
-            
-            if (tail->n == 0)
-                tail->first = new; 
-            else
-                tail->last->next = new;
+    if (tail && head) {
+      new = malloc(sizeof(Edge));
+      new->next = NULL;
+      new->tail = tail;
+      new->head = head;
 
-            tail->last = new;
-            tail->n++;
-        }
+      if (tail->n == 0)
+        tail->first = new;
+      else
+        tail->last->next = new;
+
+      tail->last = new;
+      tail->n++;
     }
+  }
 }
 
-void Graph_print(Graph *g, void (*print)(void*)) {
-    Vertex *v = NULL;
-    Edge *e = NULL;
-    
-    if (g) {
-        v = g->first;
+void Graph_print(Graph *g, void (*print)(void *)) {
+  Vertex *v = NULL;
+  Edge *e = NULL;
 
-        while (v) {
-            if (print){
-                print(v->value);
-                printf(": ");
-            }
-            else
-                printf("[%d]", v->label);
+  if (g) {
+    v = g->first;
 
-            e = v->first;
-            while (e) {
-                if (print)
-                    print(e->head->value);
-                else
-                    printf("-->(%d)", e->head->label);
-                e = e->next;
-            }
-            printf("\n");
+    while (v) {
+      if (print) {
+        print(v->value);
+        printf(": ");
+      } else
+        printf("[%d]", v->label);
 
-            v = v->next;
-        }
+      e = v->first;
+      while (e) {
+        if (print)
+          print(e->head->value);
+        else
+          printf("-->(%d)", e->head->label);
+        e = e->next;
+      }
+      printf("\n");
+
+      v = v->next;
     }
+  }
 }
 
 Edge *Graph_findEdge(Graph *g, int v0, int v1) {
-    Vertex *tail = NULL;
-    Edge *e = NULL;
+  Vertex *tail = NULL;
+  Edge *e = NULL;
 
-    if (g && g->n) {
+  if (g && g->n) {
 
-        tail = Graph_findVertexByLabel(g, v0);
+    tail = Graph_findVertexByLabel(g, v0);
 
-        if (tail) {
-            e = tail->first;
+    if (tail) {
+      e = tail->first;
 
-            while (e) {
-                if (e->head->label == v1)
-                    return e;
-                    
-                e = e->next;
-            }
-        }
+      while (e) {
+        if (e->head->label == v1)
+          return e;
+
+        e = e->next;
+      }
     }
+  }
 
-    return NULL;
+  return NULL;
 }
 
 Edge *Graph_removeEdge(Graph *g, int v0, int v1) {
-    Vertex *tail = NULL;
-    Edge *e = NULL, *ant = NULL;
+  Vertex *tail = NULL;
+  Edge *e = NULL, *ant = NULL;
 
-    if (g && g->n) {
+  if (g && g->n) {
 
-        tail = Graph_findVertexByLabel(g, v0);
+    tail = Graph_findVertexByLabel(g, v0);
 
-        if (tail) {
-            e = tail->first;
+    if (tail) {
+      e = tail->first;
 
-            while (e) {
-                if (e->head->label == v1) {
-                    if (ant == NULL) 
-                        tail->first = e->next;
-                    else
-                        ant->next = e->next;
-                    
-                    tail->n--;
-                    return e;
-                }
-                
-                ant = e;
-                e = e->next;
-            }
+      while (e) {
+        if (e->head->label == v1) {
+          if (ant == NULL)
+            tail->first = e->next;
+          else
+            ant->next = e->next;
+
+          tail->n--;
+          return e;
         }
-    }
 
-    return NULL;
+        ant = e;
+        e = e->next;
+      }
+    }
+  }
+
+  return NULL;
 }
 
 void Edge_free(Vertex *v) {
-    Edge *e = NULL, *next;
+  Edge *e = NULL, *next;
 
-    if (v) {
-        e = v->first;
-        while (e) {
-            next = e->next;
-            free(e);
-            e = next;
-        }
-        v->n = 0;
+  if (v) {
+    e = v->first;
+    while (e) {
+      next = e->next;
+      free(e);
+      e = next;
     }
+    v->n = 0;
+  }
 }
 
 Vertex *Graph_removeVertex(Graph *g, int label) {
-    Vertex *v = NULL, *ant = NULL;
+  Vertex *v = NULL, *ant = NULL;
 
-    if (g && g->n) {
-        v = g->first;
+  if (g && g->n) {
+    v = g->first;
 
-        while (v) {
-            Graph_removeEdge(g, v->label, label);
-            v = v->next;
-        }
-
-        v = g->first;
-
-        while (v) {
-            if (v->label == label) {
-                if (ant == NULL)
-                    g->first = v->next;
-                else
-                    ant->next = v->next;
-                
-                g->n--;
-                Edge_free(v);
-                return v;
-            }
-
-            ant = v;
-            v = v->next;
-        }
+    while (v) {
+      Graph_removeEdge(g, v->label, label);
+      v = v->next;
     }
 
-    return NULL;
+    v = g->first;
+
+    while (v) {
+      if (v->label == label) {
+        if (ant == NULL)
+          g->first = v->next;
+        else
+          ant->next = v->next;
+
+        g->n--;
+        Edge_free(v);
+        return v;
+      }
+
+      ant = v;
+      v = v->next;
+    }
+  }
+
+  return NULL;
 }
