@@ -49,6 +49,7 @@ void Graph_addVertex(Graph *g, int label, void *value) {
     new->next = NULL;
     new->n = 0;
     new->label = label;
+    new->weight = 0;
     new->value = value;
 
     if (g->n == 0)
@@ -98,7 +99,7 @@ Vertex *Graph_findVertexByValue(Graph *g, void *value,
   return NULL;
 }
 
-void Graph_addEdge(Graph *g, int v0, int v1) {
+void Graph_addEdge(Graph *g, int v0, int v1, int weight) {
   Edge *new = NULL;
   Vertex *tail = NULL;
   Vertex *head = NULL;
@@ -112,6 +113,7 @@ void Graph_addEdge(Graph *g, int v0, int v1) {
       new->next = NULL;
       new->tail = tail;
       new->head = head;
+      new->weight = weight;
 
       if (tail->n == 0)
         tail->first = new;
@@ -120,8 +122,21 @@ void Graph_addEdge(Graph *g, int v0, int v1) {
 
       tail->last = new;
       tail->n++;
+      head->weight += weight;
     }
   }
+}
+
+bool Graph_setEdgeWeight(Graph *g, int v0, int v1, int weight) {
+  Edge *e = Graph_findEdge(g, v0, v1);
+
+  if (e) {
+    e->head->weight += weight - e->weight;
+    e->weight = weight;
+    return true;
+  }
+
+  return false;
 }
 
 void Graph_print(Graph *g, void (*print)(void *)) {
@@ -194,7 +209,12 @@ Edge *Graph_removeEdge(Graph *g, int v0, int v1) {
           else
             ant->next = e->next;
 
+          if (tail->last == e)
+            tail->last = ant;
+
           tail->n--;
+          e->head->weight -= e->weight;
+          e->next = NULL;
           return e;
         }
 
@@ -214,9 +234,12 @@ void Edge_free(Vertex *v) {
     e = v->first;
     while (e) {
       next = e->next;
+      e->head->weight -= e->weight;
       free(e);
       e = next;
     }
+    v->first = NULL;
+    v->last = NULL;
     v->n = 0;
   }
 }
@@ -228,7 +251,7 @@ Vertex *Graph_removeVertex(Graph *g, int label) {
     v = g->first;
 
     while (v) {
-      Graph_removeEdge(g, v->label, label);
+      free(Graph_removeEdge(g, v->label, label));
       v = v->next;
     }
 
@@ -241,8 +264,12 @@ Vertex *Graph_removeVertex(Graph *g, int label) {
         else
           ant->next = v->next;
 
+        if (g->last == v)
+          g->last = ant;
+
         g->n--;
         Edge_free(v);
+        v->next = NULL;
         return v;
       }
 

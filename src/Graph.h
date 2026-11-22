@@ -1,3 +1,5 @@
+#include <stdbool.h>
+
 typedef struct Graph Graph;
 typedef struct Vertex Vertex;
 typedef struct Edge Edge;
@@ -11,6 +13,7 @@ struct Vertex {
   void *value;
 
   int label;
+  int weight;
   int n;
   Vertex *next;
   Edge *first, *last;
@@ -18,6 +21,7 @@ struct Vertex {
 
 struct Edge {
   Vertex *tail, *head;
+  int weight;
   Edge *next;
 };
 
@@ -31,7 +35,8 @@ Vertex *Graph_findVertexByValue(Graph *g, void *value,
 Edge *Graph_findEdge(Graph *g, int v0, int v1);
 
 void Graph_addVertex(Graph *g, int label, void *value);
-void Graph_addEdge(Graph *g, int v0, int v1);
+void Graph_addEdge(Graph *g, int v0, int v1, int weight);
+bool Graph_setEdgeWeight(Graph *g, int v0, int v1, int weight);
 
 Vertex *Graph_removeVertex(Graph *g, int label);
 Edge *Graph_removeEdge(Graph *g, int v0, int v1);
