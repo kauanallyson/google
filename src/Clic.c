@@ -104,7 +104,7 @@ int Clic_printCenter(char *text) {
   int width = 0, offset = 0;
 
   if (text) {
-    width = Clic_getScreenWidth();
+    width  = Clic_getScreenWidth();
     offset = (width - strlen(text)) / 2;
 
     Clic_moveToColumn(offset);
@@ -186,7 +186,7 @@ void Clic_fixDraw() {
 
 int Clic_keyCapture() {
   int keyPressed = 0;
-  int codeKey = 0;
+  int codeKey    = 0;
 
   Clic_setBufferOff();
 
@@ -205,7 +205,7 @@ int Clic_keyCapture() {
 
 int Clic_keyCaptureNonBlocking() {
   int keyPressed = 0;
-  int codeKey = 0;
+  int codeKey    = 0;
 
   Clic_setNonBlockingInputOn();
 
@@ -229,8 +229,8 @@ void Clic_pause(float seconds) {
 }
 
 int Format_extractWidth(char *format) {
-  int width = 0;
-  char *p = format;
+  int   width = 0;
+  char *p     = format;
 
   while (*p != '\0') {
     if (isdigit(*p)) {
@@ -252,10 +252,10 @@ int Format_isTypeSpecifier(char c) {
 
 Format *Format_formatSplit(char *sourceString) {
 
-  char *p = sourceString;
+  char *p             = sourceString;
   char *startOfFormat = NULL;
 
-  int count = 0;
+  int     count   = 0;
   Format *formats = calloc(Row_MAX_CELLS, sizeof(Format));
 
   while (*p != '\0') {
@@ -286,7 +286,7 @@ Format *Format_formatSplit(char *sourceString) {
         startOfFormat = NULL;
       } else if (isdigit(*p)) {
         formats[count].isCustomWidth = true;
-        formats[count].width = Format_extractWidth(startOfFormat);
+        formats[count].width         = Format_extractWidth(startOfFormat);
       } else if (!isdigit(*p) && strchr("-+ #.*hlLzjt", *p) == NULL) {
         startOfFormat = NULL;
       }
@@ -318,7 +318,7 @@ Table *Table_create(char *format) {
   }
 
   table->highlightedIndex = 1;
-  table->highlightColor = Color_YELLOW;
+  table->highlightColor   = Color_YELLOW;
 
   table->formats = Format_formatSplit(format);
 
@@ -327,13 +327,13 @@ Table *Table_create(char *format) {
     countFormats++;
   }
 
-  table->nCols = countFormats;
-  table->nRows = 0;
-  table->width = width;
+  table->nCols            = countFormats;
+  table->nRows            = 0;
+  table->width            = width;
   table->defaultCellWidth = (width - 2) / table->nCols;
 
   table->firstRow = NULL;
-  table->lastRow = NULL;
+  table->lastRow  = NULL;
 
   return table;
 }
@@ -346,7 +346,7 @@ void Table_setWidth(Table *table, int width) {
   if (width < 3)
     width = 3;
 
-  table->width = width;
+  table->width            = width;
   table->defaultCellWidth = (width - 2) / table->nCols;
 }
 
@@ -399,9 +399,9 @@ void Table_adjustVerticalSpace(Table *table) {
   int currenLine;
   Clic_getCursorPosition(&currenLine, NULL);
 
-  int height = Clic_getScreenHeight();
+  int height          = Clic_getScreenHeight();
   int availableHeight = height - (currenLine - 1);
-  int requiredHeight = 2 * (table->nRows) + 1;
+  int requiredHeight  = 2 * (table->nRows) + 1;
 
   if (requiredHeight > availableHeight) {
   }
@@ -411,14 +411,14 @@ void Table_printHighlight(Table *table, bool highlight) {
   if (!table)
     return;
 
-  int width = table->width;
-  int availableWidth = width - (2 + table->nCols);
+  int width            = table->width;
+  int availableWidth   = width - (2 + table->nCols);
   int totalCustomWidth = Format_getTotalCustomWidth(table);
-  int customCellCount = Format_getCustomCellCount(table);
+  int customCellCount  = Format_getCustomCellCount(table);
   int defaultCellCount = table->nCols - customCellCount;
-  int remainingWidth = availableWidth - totalCustomWidth;
+  int remainingWidth   = availableWidth - totalCustomWidth;
   int defaultCellWidth = remainingWidth / defaultCellCount;
-  int extraWidth = remainingWidth - (defaultCellWidth * defaultCellCount);
+  int extraWidth       = remainingWidth - (defaultCellWidth * defaultCellCount);
 
   Row *currentRow = table->firstRow;
   char contentBuffer[300];
@@ -550,7 +550,7 @@ Row *Row_create(Table *table, va_list args) {
 
   for (int col = 0; col < table->nCols; col++) {
     char *formatString = table->formats[col].formatString;
-    char *buffer = malloc(300 * sizeof(char));
+    char *buffer       = malloc(300 * sizeof(char));
 
     if (strchr(formatString, 's')) {
       char *strArg = va_arg(args, char *);
@@ -566,7 +566,7 @@ Row *Row_create(Table *table, va_list args) {
     }
 
     newRow->cell[col].content = buffer;
-    newRow->cell[col].format = table->formats[col];
+    newRow->cell[col].format  = table->formats[col];
   }
 
   va_end(args);
@@ -591,10 +591,10 @@ void Table_addRow(Table *table, ...) {
   }
 
   table->nRows++;
-  newRow->index = table->nRows;
+  newRow->index  = table->nRows;
   newRow->length = table->nCols;
-  newRow->next = NULL;
-  newRow->prev = table->lastRow;
+  newRow->next   = NULL;
+  newRow->prev   = table->lastRow;
 
   if (table->lastRow) {
     table->lastRow->next = newRow;

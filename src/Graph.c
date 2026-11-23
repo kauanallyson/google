@@ -6,9 +6,9 @@ Graph *Graph_alloc(void) {
   Graph *g = malloc(sizeof(Graph));
 
   if (g) {
-    g->n = 0;
+    g->n     = 0;
     g->first = NULL;
-    g->last = NULL;
+    g->last  = NULL;
   }
 
   return g;
@@ -16,14 +16,14 @@ Graph *Graph_alloc(void) {
 
 void Graph_free(Graph *g) {
   Vertex *v = NULL, *nextv = NULL;
-  Edge *e = NULL, *nexte = NULL;
+  Edge   *e = NULL, *nexte = NULL;
 
   if (g) {
     v = g->first;
 
     while (v) {
       nextv = v->next;
-      e = v->first;
+      e     = v->first;
 
       while (e) {
         nexte = e->next;
@@ -42,15 +42,14 @@ void Graph_free(Graph *g) {
 void Graph_addVertex(Graph *g, int label, void *value) {
   Vertex *new = NULL;
 
-  if (g) {
-    new = malloc(sizeof(Vertex));
-    new->first = NULL;
-    new->last = NULL;
-    new->next = NULL;
-    new->n = 0;
-    new->label = label;
+  if (g && (new = malloc(sizeof(Vertex)))) {
+    new->first  = NULL;
+    new->last   = NULL;
+    new->next   = NULL;
+    new->n      = 0;
+    new->label  = label;
     new->weight = 0;
-    new->value = value;
+    new->value  = value;
 
     if (g->n == 0)
       g->first = new;
@@ -100,7 +99,7 @@ Vertex *Graph_findVertexByValue(Graph *g, void *value,
 }
 
 void Graph_addEdge(Graph *g, int v0, int v1, int weight) {
-  Edge *new = NULL;
+  Edge   *new  = NULL;
   Vertex *tail = NULL;
   Vertex *head = NULL;
 
@@ -108,11 +107,10 @@ void Graph_addEdge(Graph *g, int v0, int v1, int weight) {
     tail = Graph_findVertexByLabel(g, v0);
     head = Graph_findVertexByLabel(g, v1);
 
-    if (tail && head) {
-      new = malloc(sizeof(Edge));
-      new->next = NULL;
-      new->tail = tail;
-      new->head = head;
+    if (tail && head && (new = malloc(sizeof(Edge)))) {
+      new->next   = NULL;
+      new->tail   = tail;
+      new->head   = head;
       new->weight = weight;
 
       if (tail->n == 0)
@@ -141,7 +139,7 @@ bool Graph_setEdgeWeight(Graph *g, int v0, int v1, int weight) {
 
 void Graph_print(Graph *g, void (*print)(void *)) {
   Vertex *v = NULL;
-  Edge *e = NULL;
+  Edge   *e = NULL;
 
   if (g) {
     v = g->first;
@@ -170,7 +168,7 @@ void Graph_print(Graph *g, void (*print)(void *)) {
 
 Edge *Graph_findEdge(Graph *g, int v0, int v1) {
   Vertex *tail = NULL;
-  Edge *e = NULL;
+  Edge   *e    = NULL;
 
   if (g && g->n) {
 
@@ -193,7 +191,7 @@ Edge *Graph_findEdge(Graph *g, int v0, int v1) {
 
 Edge *Graph_removeEdge(Graph *g, int v0, int v1) {
   Vertex *tail = NULL;
-  Edge *e = NULL, *ant = NULL;
+  Edge   *e = NULL, *ant = NULL;
 
   if (g && g->n) {
 
@@ -219,7 +217,7 @@ Edge *Graph_removeEdge(Graph *g, int v0, int v1) {
         }
 
         ant = e;
-        e = e->next;
+        e   = e->next;
       }
     }
   }
@@ -239,8 +237,8 @@ void Edge_free(Vertex *v) {
       e = next;
     }
     v->first = NULL;
-    v->last = NULL;
-    v->n = 0;
+    v->last  = NULL;
+    v->n     = 0;
   }
 }
 
@@ -274,7 +272,7 @@ Vertex *Graph_removeVertex(Graph *g, int label) {
       }
 
       ant = v;
-      v = v->next;
+      v   = v->next;
     }
   }
 

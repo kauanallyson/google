@@ -12,7 +12,7 @@ Site *Site_create(const char *name) {
     if (s) {
       strcpy(s->name, name);
       s->nWords = 0;
-      s->words = NULL;
+      s->words  = NULL;
     }
   }
 
@@ -21,7 +21,7 @@ Site *Site_create(const char *name) {
 
 void Site_free(void *site) {
   Site *s = site;
-  int i;
+  int   i;
 
   if (s) {
     for (i = 0; i < s->nWords; i++)
@@ -46,7 +46,7 @@ bool Site_hasWord(Site *s, const char *word) {
 
 bool Site_addWord(Site *s, const char *word) {
   char **words = NULL;
-  char *copy = NULL;
+  char  *copy  = NULL;
 
   if (s && word && word[0] != '\0' && strlen(word) < SITE_MAX_WORD &&
       !Site_hasWord(s, word)) {
@@ -62,7 +62,7 @@ bool Site_addWord(Site *s, const char *word) {
       return false;
     }
 
-    s->words = words;
+    s->words            = words;
     s->words[s->nWords] = copy;
     s->nWords++;
     return true;
