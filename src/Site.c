@@ -76,3 +76,27 @@ int Site_cmpName(void *site, void *name) {
 }
 
 void Site_print(void *site) { printf("%s", ((Site *)site)->name); }
+
+bool Site_removeWord(Site *s, const char *word) {
+  int i;
+
+  if (s && word) {
+    for (i = 0; i < s->nWords; i++) {
+      if (strcmp(s->words[i], word) == 0) {
+        free(s->words[i]);
+        memmove(&s->words[i], &s->words[i + 1],
+                (s->nWords - i - 1) * sizeof(char *));
+        s->nWords--;
+
+        if (s->nWords == 0) {
+          free(s->words);
+          s->words = NULL;
+        }
+
+        return true;
+      }
+    }
+  }
+
+  return false;
+}

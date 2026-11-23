@@ -17,6 +17,7 @@ void Site_free(void *site);
 
 bool Site_addWord(Site *s, const char *word);
 bool Site_hasWord(Site *s, const char *word);
+bool Site_removeWord(Site *s, const char *word);
 
 int Site_cmpName(void *site, void *name);
 void Site_print(void *site);
