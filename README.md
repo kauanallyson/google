@@ -3,14 +3,16 @@
 ## REQUESITOS DO PROJETO
 
 ### Kauan
-- [ ] cadastrar novos sites, palavras-chave e links;
+
+- [x] cadastrar novos sites, palavras-chave e links;
 - [ ] salvar todos os dados em arquivo;
-- [ ] carregar uma miniatura da internet previamente salva;
+- [x] carregar uma miniatura da internet previamente salva;
 - [ ] implementar um índice invertido (palavra → sites que a contêm), usando estruturas auxiliares; páginas e links continuam no Graph.h;
 - [x] calcular a importância de cada site pela soma dos valores das arestas que chegam até ele;
 - [x] recalcular o ranking após inserção, remoção ou alteração de links;
 
 ### Jonas
+
 - [ ] remover sites e links existentes;
 - [ ] pesquisar uma palavra e listar os sites que a contêm;
 - [ ] pesquisar mais de uma palavra;
