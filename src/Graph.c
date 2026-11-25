@@ -125,6 +125,20 @@ void Graph_addEdge(Graph *g, int v0, int v1, int weight) {
   }
 }
 
+void Graph_addEdgeByValue(Graph *g, void *v0, void *v1, int weight,
+                          int (*cmp)(void *, void *)) {
+  Vertex *tail = NULL;
+  Vertex *head = NULL;
+
+  if (g && g->n && cmp) {
+    tail = Graph_findVertexByValue(g, v0, cmp);
+    head = Graph_findVertexByValue(g, v1, cmp);
+
+    if (tail && head)
+      Graph_addEdge(g, tail->label, head->label, weight);
+  }
+}
+
 bool Graph_setEdgeWeight(Graph *g, int v0, int v1, int weight) {
   Edge *e = Graph_findEdge(g, v0, v1);
 
@@ -179,6 +193,30 @@ Edge *Graph_findEdge(Graph *g, int v0, int v1) {
 
       while (e) {
         if (e->head->label == v1)
+          return e;
+
+        e = e->next;
+      }
+    }
+  }
+
+  return NULL;
+}
+
+Edge *Graph_findEdgeByValue(Graph *g, void *v0, void *v1,
+                            int (*cmp)(void *, void *)) {
+  Vertex *tail = NULL;
+  Edge   *e    = NULL;
+
+  if (g && g->n && cmp) {
+
+    tail = Graph_findVertexByValue(g, v0, cmp);
+
+    if (tail) {
+      e = tail->first;
+
+      while (e) {
+        if (cmp(e->head->value, v1) == 0)
           return e;
 
         e = e->next;

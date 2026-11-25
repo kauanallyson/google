@@ -36,9 +36,13 @@ Vertex *Graph_findVertexByValue(Graph *g, void *value,
                                 int (*cmp)(void *, void *));
 
 Edge *Graph_findEdge(Graph *g, int v0, int v1);
+Edge *Graph_findEdgeByValue(Graph *g, void *v0, void *v1,
+                            int (*cmp)(void *, void *));
 
 void Graph_addVertex(Graph *g, int label, void *value);
 void Graph_addEdge(Graph *g, int v0, int v1, int weight);
+void Graph_addEdgeByValue(Graph *g, void *v0, void *v1, int weight,
+                          int (*cmp)(void *, void *));
 bool Graph_setEdgeWeight(Graph *g, int v0, int v1, int weight);
 
 Vertex *Graph_removeVertex(Graph *g, int label);
