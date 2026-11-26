@@ -5,7 +5,7 @@
 ### Kauan
 
 - [x] cadastrar novos sites, palavras-chave e links;
-- [ ] salvar todos os dados em arquivo;
+- [x] salvar todos os dados em arquivo;
 - [x] carregar uma miniatura da internet previamente salva;
 - [ ] implementar um índice invertido (palavra → sites que a contêm), usando estruturas auxiliares; páginas e links continuam no Graph.h;
 - [x] calcular a importância de cada site pela soma dos valores das arestas que chegam até ele;
