@@ -4,6 +4,18 @@
 #include <stdlib.h>
 #include <string.h>
 
+bool File_readFromArgs(Graph *g, int argc, char *argv[]) {
+  if (argc == 1)
+    return File_readSites(g, "data/sites.tsv") &&
+           File_readLinks(g, "data/links.tsv");
+
+  if (argc == 3)
+    return File_readSites(g, argv[1]) && File_readLinks(g, argv[2]);
+
+  fprintf(stderr, "Uso: %s [arquivo-de-sites arquivo-de-links]\n", argv[0]);
+  return false;
+}
+
 bool File_readSites(Graph *g, const char *filename) {
   FILE *f;
   char  row[FILE_MAX_LINE];
@@ -41,7 +53,7 @@ bool File_readSites(Graph *g, const char *filename) {
       *word++ = '\0';
 
     const char *whitespace = " \t\r\n\v\f";
-    if (!word || !*row || !*word || strlen(row) >= SITE_MAX_NAME ||
+    if (!word || !*row || strlen(row) >= SITE_MAX_NAME ||
         strlen(word) >= SITE_MAX_WORD || strpbrk(row, whitespace) ||
         strpbrk(word, whitespace)) {
       fprintf(stderr, "%s:%d: linha mal formada (esperado: site e palavra)\n",
@@ -68,45 +80,58 @@ bool File_readSites(Graph *g, const char *filename) {
       }
     }
 
-    Site_addWord(site, word);
+    if (*word)
+      Site_addWord(site, word);
   }
 
   bool ok = !ferror(f);
   return fclose(f) == 0 && ok;
 }
 
-bool File_writeSiteToFile(const Site *site, const char *filename) {
-  FILE *f;
-  long  size;
-  int   last = '\n';
-  bool  ok;
+bool File_writeGraph(const Graph *g, const char *sitesPath,
+                     const char *linksPath) {
+  if (!g || !sitesPath || !linksPath || strcmp(sitesPath, linksPath) == 0)
+    return false;
 
-  if (!site || !filename) {
-    fprintf(stderr, "File_writeSiteToFile: site ou nome de arquivo nulo\n");
+  FILE *sites = fopen(sitesPath, "w");
+  if (!sites) {
+    perror(sitesPath);
     return false;
   }
 
-  if (!(f = fopen(filename, "a+"))) {
-    fprintf(stderr, "File_writeSiteToFile: nao foi possivel abrir '%s': %s\n",
-            filename, strerror(errno));
+  FILE *links = fopen(linksPath, "w");
+  if (!links) {
+    perror(linksPath);
+    fclose(sites);
     return false;
   }
 
-  ok = fseek(f, 0, SEEK_END) == 0 && (size = ftell(f)) >= 0;
-  if (ok && size > 0)
-    ok = fseek(f, -1, SEEK_END) == 0 && (last = fgetc(f)) != EOF &&
-         fseek(f, 0, SEEK_END) == 0;
+  bool ok = true;
+  const Vertex *vertex = g->first;
+  while (ok && vertex) {
+    const Site *site = vertex->value;
+    if (site->nWords == 0)
+      ok = fprintf(sites, "%s\t\n", site->name) >= 0;
+    for (int i = 0; ok && i < site->nWords; i++)
+      ok = fprintf(sites, "%s\t%s\n", site->name, site->words[i]) >= 0;
 
-  if (ok && site->nWords > 0 && last != '\n')
-    ok = fputc('\n', f) != EOF;
-  for (int i = 0; ok && i < site->nWords; i++)
-    ok = fprintf(f, "%s\t%s\n", site->name, site->words[i]) >= 0;
+    const Edge *edge = vertex->first;
+    while (ok && edge) {
+      const Site *destination = edge->head->value;
+      ok = fprintf(links, "%s\t%s\t%d\n", site->name, destination->name,
+                   edge->weight) >= 0;
+      edge = edge->next;
+    }
+    vertex = vertex->next;
+  }
 
-  if (fclose(f) == EOF)
+  if (fclose(sites) == EOF)
+    ok = false;
+  if (fclose(links) == EOF)
     ok = false;
   if (!ok)
-    fprintf(stderr, "File_writeSiteToFile: erro ao gravar em '%s'\n",
-            filename);
+    fprintf(stderr, "Erro ao salvar o grafo em '%s' e '%s'.\n", sitesPath,
+            linksPath);
   return ok;
 }
 

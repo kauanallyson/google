@@ -1,3 +1,5 @@
 google
 google.dSYM/
 .DS_Store
+/sites-out.tsv
+/links-out.tsv
