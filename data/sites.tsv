@@ -1,10 +1,60 @@
-hardware.com	tecnologia	computador	hardware	peca	manutencao	preco
-games.com	computador	preco	jogo	console	promocao	on-line
-opiniao.com	jogo	melhor	computador	console	smartphone	tecnologia
-shopping.com	computador	promocao	preco	console	smartphone	calcado
-videos.com	tecnologia	noticia	filme	futebol	console	melhor
-bet.com	jogo	aposta	promocao	premiacao	on-line	preco
-wiki.com	computador	hardware	smartphone	ator	filme	tecnologia
-tv.com	noticia	entrevista	filme	ator	serie	jogo
-jornal.com	noticia	entrevista	manchete	on-line	materia	filme
-esporte.com	jogo	futebol	resultado	on-line	entrevista	melhor
+hardware.com	tecnologia
+hardware.com	computador
+hardware.com	hardware
+hardware.com	peca
+hardware.com	manutencao
+hardware.com	preco
+games.com	computador
+games.com	preco
+games.com	jogo
+games.com	console
+games.com	promocao
+games.com	on-line
+opiniao.com	jogo
+opiniao.com	melhor
+opiniao.com	computador
+opiniao.com	console
+opiniao.com	smartphone
+opiniao.com	tecnologia
+shopping.com	computador
+shopping.com	promocao
+shopping.com	preco
+shopping.com	console
+shopping.com	smartphone
+shopping.com	calcado
+videos.com	tecnologia
+videos.com	noticia
+videos.com	filme
+videos.com	futebol
+videos.com	console
+videos.com	melhor
+bet.com	jogo
+bet.com	aposta
+bet.com	promocao
+bet.com	premiacao
+bet.com	on-line
+bet.com	preco
+wiki.com	computador
+wiki.com	hardware
+wiki.com	smartphone
+wiki.com	ator
+wiki.com	filme
+wiki.com	tecnologia
+tv.com	noticia
+tv.com	entrevista
+tv.com	filme
+tv.com	ator
+tv.com	serie
+tv.com	jogo
+jornal.com	noticia
+jornal.com	entrevista
+jornal.com	manchete
+jornal.com	on-line
+jornal.com	materia
+jornal.com	filme
+esporte.com	jogo
+esporte.com	futebol
+esporte.com	resultado
+esporte.com	on-line
+esporte.com	entrevista
+esporte.com	melhor

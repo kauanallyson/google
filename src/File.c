@@ -5,12 +5,9 @@
 #include <string.h>
 
 bool File_readSites(Graph *g, const char *filename) {
-  FILE *f = NULL;
-  Site *s = NULL;
-  char  name[SITE_MAX_NAME];
-  char  word[SITE_MAX_WORD];
-  char  sep;
-  int   label, n, nWords, line = 0;
+  FILE *f;
+  char  row[FILE_MAX_LINE];
+  int   line = 0;
 
   if (!g || !filename) {
     fprintf(stderr, "File_readSites: grafo ou nome de arquivo nulo\n");
@@ -23,80 +20,94 @@ bool File_readSites(Graph *g, const char *filename) {
     return false;
   }
 
-  while ((n = fscanf(f, "%63s%c", name, &sep)) >= 1) {
+  while (fgets(row, sizeof row, f)) {
     line++;
-    s = NULL;
-
-    if (n == 2 && sep != '\t' && sep != '\n') {
-      fprintf(stderr,
-              "%s:%d: nome do site maior que %d caracteres ou separado por "
-              "espaco, linha ignorada\n",
-              filename, line, SITE_MAX_NAME - 1);
-      fscanf(f, "%*[^\n]");
+    size_t length = strlen(row);
+    if (length == sizeof row - 1 && row[length - 1] != '\n') {
+      int ch;
+      while ((ch = fgetc(f)) != '\n' && ch != EOF)
+        ;
+      fprintf(stderr, "%s:%d: linha longa demais, ignorada\n", filename, line);
       continue;
     }
 
-    if (Graph_findVertexByValue(g, name, Site_cmpName))
-      fprintf(stderr, "%s:%d: site '%s' repetido, linha ignorada\n", filename,
-              line, name);
-    else if (!(s = Site_alloc(name)))
-      fprintf(stderr, "%s:%d: nao foi possivel criar o site '%s'\n", filename,
-              line, name);
+    if (length > 0 && row[length - 1] == '\n')
+      row[--length] = '\0';
+    if (length > 0 && row[length - 1] == '\r')
+      row[--length] = '\0';
 
-    while (n == 2 && sep == '\t') {
-      if (fscanf(f, "%c", &sep) != 1 || sep == '\n') {
-        fprintf(stderr, "%s:%d: tab sobrando no fim da linha\n", filename,
-                line);
-        break;
-      }
+    char *word = strchr(row, '\t');
+    if (word)
+      *word++ = '\0';
 
-      if (sep == '\t') {
-        fprintf(stderr, "%s:%d: dois tabs seguidos (palavra vazia)\n",
-                filename, line);
-        continue;
-      }
-
-      ungetc(sep, f);
-      n = fscanf(f, "%31s%c", word, &sep);
-
-      if (n < 1) {
-        fprintf(stderr, "%s:%d: fim do arquivo inesperado\n", filename, line);
-        break;
-      }
-
-      if (n == 2 && sep != '\t' && sep != '\n') {
-        fprintf(stderr,
-                "%s:%d: palavra maior que %d caracteres ou separada por "
-                "espaco, resto da linha ignorado\n",
-                filename, line, SITE_MAX_WORD - 1);
-        fscanf(f, "%*[^\n]");
-        break;
-      }
-
-      if (s) {
-        nWords = s->nWords;
-        Site_addWord(s, word);
-
-        if (s->nWords == nWords)
-          fprintf(stderr, "%s:%d: palavra '%s' repetida em '%s', ignorada\n",
-                  filename, line, word, name);
-      }
+    const char *whitespace = " \t\r\n\v\f";
+    if (!word || !*row || !*word || strlen(row) >= SITE_MAX_NAME ||
+        strlen(word) >= SITE_MAX_WORD || strpbrk(row, whitespace) ||
+        strpbrk(word, whitespace)) {
+      fprintf(stderr, "%s:%d: linha mal formada (esperado: site e palavra)\n",
+              filename, line);
+      continue;
     }
 
-    if (s) {
-      label = g->last ? g->last->label + 1 : 0;
-      Graph_addVertex(g, label, s);
+    Vertex *vertex = Graph_findVertexByValue(g, row, Site_cmpName);
+    Site *site;
+    if (vertex) {
+      site = vertex->value;
+    } else {
+      site = Site_alloc(row);
+      if (!site)
+        continue;
 
+      int label = g->last ? g->last->label + 1 : 0;
+      Graph_addVertex(g, label, site);
       if (!Graph_findVertexByLabel(g, label)) {
         fprintf(stderr, "%s:%d: nao foi possivel adicionar '%s' ao grafo\n",
-                filename, line, name);
-        Site_free(s);
+                filename, line, row);
+        Site_free(site);
+        continue;
       }
     }
+
+    Site_addWord(site, word);
   }
 
-  fclose(f);
-  return true;
+  bool ok = !ferror(f);
+  return fclose(f) == 0 && ok;
+}
+
+bool File_writeSiteToFile(const Site *site, const char *filename) {
+  FILE *f;
+  long  size;
+  int   last = '\n';
+  bool  ok;
+
+  if (!site || !filename) {
+    fprintf(stderr, "File_writeSiteToFile: site ou nome de arquivo nulo\n");
+    return false;
+  }
+
+  if (!(f = fopen(filename, "a+"))) {
+    fprintf(stderr, "File_writeSiteToFile: nao foi possivel abrir '%s': %s\n",
+            filename, strerror(errno));
+    return false;
+  }
+
+  ok = fseek(f, 0, SEEK_END) == 0 && (size = ftell(f)) >= 0;
+  if (ok && size > 0)
+    ok = fseek(f, -1, SEEK_END) == 0 && (last = fgetc(f)) != EOF &&
+         fseek(f, 0, SEEK_END) == 0;
+
+  if (ok && site->nWords > 0 && last != '\n')
+    ok = fputc('\n', f) != EOF;
+  for (int i = 0; ok && i < site->nWords; i++)
+    ok = fprintf(f, "%s\t%s\n", site->name, site->words[i]) >= 0;
+
+  if (fclose(f) == EOF)
+    ok = false;
+  if (!ok)
+    fprintf(stderr, "File_writeSiteToFile: erro ao gravar em '%s'\n",
+            filename);
+  return ok;
 }
 
 bool File_readLinks(Graph *g, const char *filename) {

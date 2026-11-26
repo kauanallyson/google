@@ -10,6 +10,6 @@
 
 bool File_readSites(Graph *g, const char *filename);
 bool File_readLinks(Graph *g, const char *filename);
-bool File_writeSiteToFile(const char *filename);
+bool File_writeSiteToFile(const Site *site, const char *filename);
 
 #endif /* FILE_H */

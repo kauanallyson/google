@@ -125,7 +125,8 @@ void Site_addLink(Graph *g, Site *s1, Site *s2, int weight) {
   Graph_addEdgeByValue(g, s1->name, s2->name, weight, Site_cmpName);
 
   if (!Graph_findEdgeByValue(g, s1->name, s2->name, Site_cmpName))
-    fprintf(stderr, "Site_addLink: nao foi possivel criar o link '%s' -> '%s'\n",
+    fprintf(stderr,
+            "Site_addLink: nao foi possivel criar o link '%s' -> '%s'\n",
             s1->name, s2->name);
 }
 
