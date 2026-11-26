@@ -103,7 +103,7 @@ static bool Index_insertWord(Index *index, int position, const char *word,
     index->capacity = capacity;
   }
 
-  entry.value[0] = (IndexedSite){vertex->value, vertex};
+  entry.value[0] = vertex;
   if (position < index->count)
     memmove(&index->entries[position + 1], &index->entries[position],
             (index->count - position) * sizeof(*index->entries));
@@ -125,7 +125,7 @@ bool Index_add(Index *index, const char *word, const Vertex *vertex) {
 
   IndexEntry *entry = &index->entries[position];
   for (int i = 0; i < entry->count; i++)
-    if (entry->value[i].value == vertex->value)
+    if (entry->value[i]->value == vertex->value)
       return true;
 
   if (entry->count == entry->capacity) {
@@ -134,7 +134,7 @@ bool Index_add(Index *index, const char *word, const Vertex *vertex) {
       return false;
 
     int          capacity = entry->capacity * 2;
-    IndexedSite *value    = realloc(entry->value, capacity * sizeof(*value));
+    const Vertex **value = realloc(entry->value, capacity * sizeof(*value));
     if (!value)
       return false;
 
@@ -142,7 +142,7 @@ bool Index_add(Index *index, const char *word, const Vertex *vertex) {
     entry->capacity = capacity;
   }
 
-  entry->value[entry->count++] = (IndexedSite){vertex->value, vertex};
+  entry->value[entry->count++] = vertex;
   return true;
 }
 
@@ -151,7 +151,7 @@ static void Index_removeSiteWords(Index *index, const Vertex *vertex) {
   for (int i = 0; i < index->count; i++) {
     IndexEntry *entry = &index->entries[i];
     for (int j = 0; j < entry->count; j++) {
-      if (entry->value[j].vertex == vertex) {
+      if (entry->value[j] == vertex) {
         entry->count--;
         if (j < entry->count)
           entry->value[j] = entry->value[entry->count];
@@ -176,18 +176,42 @@ bool Index_addSite(Index *index, int label, Site *site) {
       Graph_findVertexByValue(g, site->name, Site_cmpName))
     return false;
 
-  Vertex *previousLast = g->last;
-  Graph_addVertex(g, label, site);
-  if (g->last == previousLast)
+  Vertex *vertex = Graph_addVertex(g, label, site);
+  if (!vertex)
     return false;
 
-  Vertex *vertex = g->last;
   if (!Index_addSiteWords(index, vertex)) {
     Index_removeSiteWords(index, vertex);
     free(Graph_removeVertex(g, label));
     return false;
   }
 
+  return true;
+}
+
+bool Index_addWord(Index *index, int label, const char *word) {
+  if (!index || !index->graph || !word || !*word ||
+      strlen(word) >= SITE_MAX_WORD || word[strcspn(word, " \t\r\n\v\f")])
+    return false;
+
+  Vertex *vertex = Graph_findVertexByLabel(index->graph, label);
+  if (!vertex || !vertex->value)
+    return false;
+
+  Site *site = vertex->value;
+  if (Site_hasWord(site, word))
+    return Index_add(index, word, vertex);
+
+  int previousCount = site->nWords;
+  Site_addWord(site, word);
+  if (site->nWords == previousCount)
+    return false;
+
+  if (!Index_add(index, word, vertex)) {
+    free(site->words[--site->nWords]);
+    site->words[site->nWords] = NULL;
+    return false;
+  }
   return true;
 }
 
@@ -203,15 +227,17 @@ Site *Index_removeSite(Index *index, int label) {
 }
 
 static int Index_cmpSites(const void *a, const void *b) {
-  const IndexedSite *left        = a;
-  const IndexedSite *right       = b;
-  int                leftWeight  = left->vertex->weight;
-  int                rightWeight = right->vertex->weight;
+  const Vertex *left = *(const Vertex *const *)a;
+  const Vertex *right = *(const Vertex *const *)b;
+  int leftWeight = left->weight;
+  int rightWeight = right->weight;
 
   if (leftWeight != rightWeight)
     return leftWeight > rightWeight ? -1 : 1;
 
-  return strcmp(left->value->name, right->value->name);
+  const Site *leftSite = left->value;
+  const Site *rightSite = right->value;
+  return strcmp(leftSite->name, rightSite->name);
 }
 
 const IndexEntry *Index_get(Index *index, const char *word) {
@@ -236,5 +262,5 @@ Site *Index_siteAt(const IndexEntry *entry, int index) {
   if (!entry || index < 0 || index >= entry->count)
     return NULL;
 
-  return entry->value[index].value;
+  return entry->value[index]->value;
 }

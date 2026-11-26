@@ -6,14 +6,9 @@
 typedef struct Index Index;
 typedef struct IndexEntry IndexEntry;
 
-typedef struct {
-  Site         *value;
-  const Vertex *vertex;
-} IndexedSite;
-
 struct IndexEntry {
   char           key[SITE_MAX_WORD];
-  IndexedSite    *value;
+  const Vertex **value;
   int          count, capacity;
 };
 
@@ -29,6 +24,7 @@ void Index_free(Index *index);
 
 bool Index_add(Index *index, const char *word, const Vertex *vertex);
 bool Index_addSite(Index *index, int label, Site *site);
+bool Index_addWord(Index *index, int label, const char *word);
 Site *Index_removeSite(Index *index, int label);
 bool Index_update(Index *index);
 const IndexEntry *Index_get(Index *index, const char *word);
