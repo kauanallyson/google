@@ -442,13 +442,16 @@ void Table_printHighlight(Table *table, bool highlight) {
       if (col == table->nCols - 1 && extraWidth > 0) {
         cellWidth += extraWidth;
       }
+      if (cellWidth < 1) {
+        cellWidth = 1;
+      }
 
       if (highlight && table->highlightedIndex == currentRow->index) {
         Clic_setBackgroundColor(table->highlightColor);
         Clic_setFontColor(Color_BLACK);
       }
 
-      if (strlen(cell.content) > cellWidth) {
+      if (strlen(cell.content) > (size_t)cellWidth) {
         strncpy(contentBuffer, cell.content, cellWidth - 1);
         contentBuffer[cellWidth - 1] = '\0';
         strcat(contentBuffer, Symbol_TREE_POINTS);
