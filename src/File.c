@@ -20,6 +20,7 @@ bool File_readSites(Graph *g, const char *filename) {
   FILE *f;
   char  row[FILE_MAX_LINE];
   int   line = 0;
+  bool loaded = false;
 
   if (!g || !filename) {
     fprintf(stderr, "File_readSites: grafo ou nome de arquivo nulo\n");
@@ -71,8 +72,7 @@ bool File_readSites(Graph *g, const char *filename) {
         continue;
 
       int label = g->last ? g->last->label + 1 : 0;
-      Graph_addVertex(g, label, site);
-      if (!Graph_findVertexByLabel(g, label)) {
+      if (!Graph_addVertex(g, label, site)) {
         fprintf(stderr, "%s:%d: nao foi possivel adicionar '%s' ao grafo\n",
                 filename, line, row);
         Site_free(site);
@@ -80,12 +80,23 @@ bool File_readSites(Graph *g, const char *filename) {
       }
     }
 
-    if (*word)
+    if (*word) {
       Site_addWord(site, word);
+      if (!Site_hasWord(site, word))
+        continue;
+    }
+    loaded = true;
   }
 
   bool ok = !ferror(f);
-  return fclose(f) == 0 && ok;
+  if (fclose(f) != 0 || !ok)
+    return false;
+
+  if (line > 0 && !loaded) {
+    fprintf(stderr, "%s: nenhum registro de site valido\n", filename);
+    return false;
+  }
+  return true;
 }
 
 bool File_writeGraph(const Graph *g, const char *sitesPath,
