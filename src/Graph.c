@@ -39,7 +39,7 @@ void Graph_free(Graph *g) {
   }
 }
 
-void Graph_addVertex(Graph *g, int label, void *value) {
+Vertex *Graph_addVertex(Graph *g, int label, void *value) {
   Vertex *new = NULL;
 
   if (g && (new = malloc(sizeof(Vertex)))) {
@@ -59,6 +59,8 @@ void Graph_addVertex(Graph *g, int label, void *value) {
     g->last = new;
     g->n++;
   }
+
+  return new;
 }
 
 Vertex *Graph_findVertexByLabel(Graph *g, int label) {
