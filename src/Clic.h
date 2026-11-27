@@ -105,6 +105,7 @@ void   Table_setWidth(Table *table, int width);
 void   Table_free(Table *table);
 void   Table_addRow(Table *table, ...);
 void   Table_print(Table *table);
+void   Table_printHighlight(Table *table, bool highlight);
 int    Table_select(Table *table);
 
 #define Row_MAX_CELLS 60

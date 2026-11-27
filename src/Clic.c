@@ -1,3 +1,5 @@
+#define _DEFAULT_SOURCE
+
 #include "Clic.h"
 
 void Clic_resetColor() { printf("\e[m"); }
@@ -531,10 +533,13 @@ void Table_free(Table *table) {
 
   while (currentRow != NULL) {
     nextRow = currentRow->next;
+    for (int col = 0; col < table->nCols; col++)
+      free(currentRow->cell[col].content);
     free(currentRow);
     currentRow = nextRow;
   }
 
+  free(table->formats);
   free(table);
 }
 
@@ -572,8 +577,6 @@ Row *Row_create(Table *table, va_list args) {
     newRow->cell[col].format  = table->formats[col];
   }
 
-  va_end(args);
-
   return newRow;
 }
 
@@ -590,6 +593,7 @@ void Table_addRow(Table *table, ...) {
 
   if (!newRow) {
     perror("Error: Table_addRow: Unable to allocate memory for new Row.\n");
+    va_end(args);
     return;
   }
 
@@ -606,4 +610,6 @@ void Table_addRow(Table *table, ...) {
   }
 
   table->lastRow = newRow;
+
+  va_end(args);
 }
