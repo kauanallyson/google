@@ -226,6 +226,31 @@ Site *Index_removeSite(Index *index, int label) {
   return site;
 }
 
+bool Index_removeSiteByName(Index *index, const char *name) {
+  if (!index || !index->graph || !name || !*name)
+    return false;
+
+  Vertex *vertex =
+      Graph_findVertexByValue(index->graph, (void *)name, Site_cmpName);
+  if (!vertex)
+    return false;
+
+  Site *site = Index_removeSite(index, vertex->label);
+  if (!site)
+    return false;
+
+  Site_free(site);
+  return true;
+}
+
+bool Index_removeLink(Index *index, const char *origin,
+                      const char *destination) {
+  if (!index || !index->graph)
+    return false;
+
+  return Site_removeLinkByName(index->graph, origin, destination);
+}
+
 static int Index_cmpSites(const void *a, const void *b) {
   const Vertex *left = *(const Vertex *const *)a;
   const Vertex *right = *(const Vertex *const *)b;

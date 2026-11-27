@@ -46,6 +46,25 @@ void Site_free(void *site) {
   }
 }
 
+bool Site_remove(Graph *g, const char *name) {
+  if (!g || !name || name[0] == '\0') {
+    fprintf(stderr, "Site_remove: grafo ou nome nulo ou vazio\n");
+    return false;
+  }
+
+  Vertex *vertex = Graph_findVertexByValue(g, (void *)name, Site_cmpName);
+  if (!vertex)
+    return false;
+
+  Vertex *removed = Graph_removeVertex(g, vertex->label);
+  if (!removed)
+    return false;
+
+  Site_free(removed->value);
+  free(removed);
+  return true;
+}
+
 bool Site_hasWord(Site *s, const char *word) {
   int i;
 
@@ -128,6 +147,37 @@ void Site_addLink(Graph *g, Site *s1, Site *s2, int weight) {
     fprintf(stderr,
             "Site_addLink: nao foi possivel criar o link '%s' -> '%s'\n",
             s1->name, s2->name);
+}
+
+bool Site_removeLinkByName(Graph *g, const char *origin,
+                           const char *destination) {
+  if (!g || !origin || origin[0] == '\0' || !destination ||
+      destination[0] == '\0') {
+    fprintf(stderr,
+            "Site_removeLinkByName: grafo ou nome de site nulo ou vazio\n");
+    return false;
+  }
+
+  Vertex *v1 = Graph_findVertexByValue(g, (void *)origin, Site_cmpName);
+  Vertex *v2 = Graph_findVertexByValue(g, (void *)destination, Site_cmpName);
+  if (!v1 || !v2)
+    return false;
+
+  Edge *edge = Graph_removeEdge(g, v1->label, v2->label);
+  if (!edge)
+    return false;
+
+  free(edge);
+  return true;
+}
+
+bool Site_removeLink(Graph *g, Site *s1, Site *s2) {
+  if (!g || !s1 || !s2) {
+    fprintf(stderr, "Site_removeLink: grafo ou site nulo\n");
+    return false;
+  }
+
+  return Site_removeLinkByName(g, s1->name, s2->name);
 }
 
 int Site_cmpName(void *site, void *name) {

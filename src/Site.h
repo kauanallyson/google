@@ -16,12 +16,16 @@ typedef struct {
 
 Site *Site_alloc(const char *name);
 void  Site_free(void *site);
+bool  Site_remove(Graph *g, const char *name);
 
 bool Site_hasWord(Site *s, const char *word);
 void Site_addWord(Site *s, const char *word);
 
 bool Site_hasLink(Graph *g, Site *s1, Site *s2);
 void Site_addLink(Graph *g, Site *s1, Site *s2, int weight);
+bool Site_removeLink(Graph *g, Site *s1, Site *s2);
+bool Site_removeLinkByName(Graph *g, const char *origin,
+                           const char *destination);
 
 int  Site_cmpName(void *site, void *name);
 void Site_print(void *site);
