@@ -1,7 +1,10 @@
-CFLAGS := -std=c99 -Wall -Wextra -g -fsanitize=address,undefined
+CC     := cc
+CFLAGS := -std=c99 -Wall -Wextra -g -fsanitize=address,undefined -Iinclude
+SOURCES := $(wildcard src/*.c src/*/*.c)
+HEADERS := $(wildcard include/*.h)
 
-google: src/*.c src/*.h
-	cc $(CFLAGS) src/*.c -o google
+google: $(SOURCES) $(HEADERS)
+	$(CC) $(CFLAGS) $(SOURCES) -o google
 
 run: google
 	./google
