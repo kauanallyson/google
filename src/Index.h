@@ -32,6 +32,7 @@ bool  Index_removeLink(Index *index, const char *origin,
 bool Index_update(Index *index);
 const IndexEntry *Index_get(Index *index, const char *word);
 int Index_count(const IndexEntry *entry);
+const Vertex *Index_vertexAt(const IndexEntry *entry, int index);
 Site *Index_siteAt(const IndexEntry *entry, int index);
 
 #endif /* INDEX_H */

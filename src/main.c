@@ -1,5 +1,6 @@
 #include "File.h"
 #include "Index.h"
+#include "Search.h"
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -31,26 +32,35 @@ static bool readLine(const char *prompt, char *buffer, size_t size) {
   return true;
 }
 
+static char *trimWhitespace(char *text) {
+  const char *whitespace = " \t\r\n\v\f";
+  while (*text && strchr(whitespace, *text))
+    text++;
+
+  size_t length = strlen(text);
+  while (length > 0 && strchr(whitespace, text[length - 1]))
+    text[--length] = '\0';
+
+  return text;
+}
+
 static void searchWord(Index *index) {
-  char word[SITE_MAX_WORD + 1];
-  if (!readLine("Digite uma palavra: ", word, sizeof(word)))
+  char buffer[SITE_MAX_WORD + 1];
+  if (!readLine("Digite uma palavra: ", buffer, sizeof(buffer)))
     return;
 
-  if (!*word || strlen(word) >= SITE_MAX_WORD) {
-    fprintf(stderr, "Digite uma única palavra de até %d bytes.\n",
+  char         *word   = trimWhitespace(buffer);
+  SearchResult *result = Search_word(index, word);
+  if (!result) {
+    fprintf(stderr,
+            "Digite uma unica palavra valida (sem espacos, ate %d bytes).\n",
             SITE_MAX_WORD - 1);
     return;
   }
 
-  const IndexEntry *entry = Index_get(index, word);
   printf("Sites com a palavra \"%s\":\n", word);
-  if (!entry) {
-    printf("Nenhum site encontrado.\n");
-    return;
-  }
-
-  for (int i = 0; i < Index_count(entry); i++)
-    printf("%s\n", Index_siteAt(entry, i)->name);
+  Search_print(result);
+  Search_free(result);
 }
 
 static void removeSite(Index *index) {

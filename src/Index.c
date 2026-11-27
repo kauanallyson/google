@@ -266,7 +266,7 @@ static int Index_cmpSites(const void *a, const void *b) {
 }
 
 const IndexEntry *Index_get(Index *index, const char *word) {
-  if (!index || !word || strlen(word) >= SITE_MAX_WORD)
+  if (!index || !word || !*word || strlen(word) >= SITE_MAX_WORD)
     return NULL;
 
   int position = Index_findPosition(index, word);
@@ -283,9 +283,14 @@ const IndexEntry *Index_get(Index *index, const char *word) {
 
 int Index_count(const IndexEntry *entry) { return entry ? entry->count : 0; }
 
-Site *Index_siteAt(const IndexEntry *entry, int index) {
+const Vertex *Index_vertexAt(const IndexEntry *entry, int index) {
   if (!entry || index < 0 || index >= entry->count)
     return NULL;
 
-  return entry->value[index]->value;
+  return entry->value[index];
+}
+
+Site *Index_siteAt(const IndexEntry *entry, int index) {
+  const Vertex *vertex = Index_vertexAt(entry, index);
+  return vertex ? vertex->value : NULL;
 }
