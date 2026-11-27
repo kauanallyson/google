@@ -15,7 +15,7 @@
 
 - [x] remover sites e links existentes;
 - [x] pesquisar uma palavra e listar os sites que a contêm;
-- [ ] pesquisar mais de uma palavra;
-- [ ] realizar consultas utilizando os operadores AND e OR;
-- [ ] ordenar os resultados por importância e, em caso de empate, por ordem alfabética;
-- [ ] implementar interface com Clic.h
+- [x] pesquisar mais de uma palavra;
+- [x] realizar consultas utilizando os operadores AND e OR;
+- [x] ordenar os resultados por importância e, em caso de empate, por ordem alfabética;
+- [x] implementar interface com Clic.h
