@@ -9,6 +9,7 @@ typedef struct {
 } SearchResult;
 
 SearchResult *Search_word(Index *index, const char *word);
+SearchResult *Search_words(Index *index, const char *query);
 void          Search_free(SearchResult *result);
 
 int   Search_count(const SearchResult *result);

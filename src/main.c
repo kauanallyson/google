@@ -44,21 +44,22 @@ static char *trimWhitespace(char *text) {
   return text;
 }
 
-static void searchWord(Index *index) {
-  char buffer[SITE_MAX_WORD + 1];
-  if (!readLine("Digite uma palavra: ", buffer, sizeof(buffer)))
+static void searchWords(Index *index) {
+  char buffer[FILE_MAX_LINE];
+  if (!readLine("Digite uma ou mais palavras: ", buffer, sizeof(buffer)))
     return;
 
-  char         *word   = trimWhitespace(buffer);
-  SearchResult *result = Search_word(index, word);
+  char         *query  = trimWhitespace(buffer);
+  SearchResult *result = Search_words(index, query);
   if (!result) {
     fprintf(stderr,
-            "Digite uma unica palavra valida (sem espacos, ate %d bytes).\n",
+            "Digite ao menos uma palavra valida (cada palavra com ate %d "
+            "bytes).\n",
             SITE_MAX_WORD - 1);
     return;
   }
 
-  printf("Sites com a palavra \"%s\":\n", word);
+  printf("Sites encontrados para \"%s\":\n", query);
   Search_print(result);
   Search_free(result);
 }
@@ -121,7 +122,7 @@ int main(int argc, char *argv[]) {
       bool running = true;
 
       while (running) {
-        printf("\n1 - Pesquisar palavra\n"
+        printf("\n1 - Pesquisar palavras\n"
                "2 - Remover site\n"
                "3 - Remover link\n"
                "4 - Listar sites e links\n"
@@ -130,7 +131,7 @@ int main(int argc, char *argv[]) {
           break;
 
         if (strcmp(option, "1") == 0)
-          searchWord(index);
+          searchWords(index);
         else if (strcmp(option, "2") == 0)
           removeSite(index);
         else if (strcmp(option, "3") == 0)
