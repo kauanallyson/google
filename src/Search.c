@@ -30,6 +30,13 @@ static int Search_cmpVertices(const void *a, const void *b) {
   return strcmp(leftSite->name, rightSite->name);
 }
 
+void Search_sortVertices(const Vertex **vertices, int count) {
+  if (!vertices || count < 2)
+    return;
+
+  qsort(vertices, (size_t)count, sizeof(*vertices), Search_cmpVertices);
+}
+
 static bool Search_containsVertex(const IndexEntry *entry,
                                   const Vertex     *vertex) {
   int count = Index_count(entry);
@@ -231,9 +238,8 @@ SearchResult *Search_words(Index *index, const char *query) {
   if (result->count == 0) {
     free(result->sites);
     result->sites = NULL;
-  } else if (result->count > 1) {
-    qsort(result->sites, (size_t)result->count, sizeof(*result->sites),
-          Search_cmpVertices);
+  } else {
+    Search_sortVertices(result->sites, result->count);
   }
 
   return result;
@@ -284,9 +290,7 @@ SearchResult *Search_query(Index *index, const char *query) {
     }
   }
 
-  if (total->count > 1)
-    qsort(total->sites, (size_t)total->count, sizeof(*total->sites),
-          Search_cmpVertices);
+  Search_sortVertices(total->sites, total->count);
 
   return total;
 }
