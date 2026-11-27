@@ -46,15 +46,16 @@ static char *trimWhitespace(char *text) {
 
 static void searchWords(Index *index) {
   char buffer[FILE_MAX_LINE];
-  if (!readLine("Digite uma ou mais palavras: ", buffer, sizeof(buffer)))
+  if (!readLine("Digite a consulta (ex: palavra1 AND palavra2 OR palavra3): ",
+                buffer, sizeof(buffer)))
     return;
 
   char         *query  = trimWhitespace(buffer);
-  SearchResult *result = Search_words(index, query);
+  SearchResult *result = Search_query(index, query);
   if (!result) {
     fprintf(stderr,
-            "Digite ao menos uma palavra valida (cada palavra com ate %d "
-            "bytes).\n",
+            "Consulta invalida. Use palavras de ate %d bytes combinadas com "
+            "AND ou OR.\n",
             SITE_MAX_WORD - 1);
     return;
   }
@@ -122,7 +123,7 @@ int main(int argc, char *argv[]) {
       bool running = true;
 
       while (running) {
-        printf("\n1 - Pesquisar palavras\n"
+        printf("\n1 - Pesquisar (palavras, AND, OR)\n"
                "2 - Remover site\n"
                "3 - Remover link\n"
                "4 - Listar sites e links\n"
