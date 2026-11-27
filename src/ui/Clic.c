@@ -1,5 +1,3 @@
-#define _DEFAULT_SOURCE
-
 #include "Clic.h"
 
 void Clic_resetColor() { printf("\e[m"); }

@@ -1,5 +1,5 @@
 CC     := cc
-CFLAGS := -std=c99 -Wall -Wextra -g -fsanitize=address,undefined -Iinclude
+CFLAGS := -std=gnu99 -Wall -Wextra -g -fsanitize=address,undefined -Iinclude
 SOURCES := $(wildcard src/*.c src/*/*.c)
 HEADERS := $(wildcard include/*.h)
 
