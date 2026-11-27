@@ -4,16 +4,91 @@
 #include <stdlib.h>
 #include <string.h>
 
+void File_resolvePaths(int argc, char *argv[], const char **sitesPath,
+                       const char **linksPath) {
+  if (sitesPath)
+    *sitesPath = argc > 1 ? argv[1] : FILE_SITES_DEFAULT;
+  if (linksPath)
+    *linksPath = argc > 2 ? argv[2] : FILE_LINKS_DEFAULT;
+}
+
 bool File_readFromArgs(Graph *g, int argc, char *argv[]) {
-  if (argc == 1)
-    return File_readSites(g, "data/sites.tsv") &&
-           File_readLinks(g, "data/links.tsv");
+  if (argc != 1 && argc != 3) {
+    fprintf(stderr, "Uso: %s [arquivo-de-sites arquivo-de-links]\n", argv[0]);
+    return false;
+  }
 
-  if (argc == 3)
-    return File_readSites(g, argv[1]) && File_readLinks(g, argv[2]);
+  const char *sitesPath = NULL;
+  const char *linksPath = NULL;
+  File_resolvePaths(argc, argv, &sitesPath, &linksPath);
+  return File_readSites(g, sitesPath) && File_readLinks(g, linksPath);
+}
 
-  fprintf(stderr, "Uso: %s [arquivo-de-sites arquivo-de-links]\n", argv[0]);
-  return false;
+static void File_freeGraphContents(Graph *g) {
+  if (!g)
+    return;
+
+  Vertex *vertex = g->first;
+  while (vertex) {
+    Vertex *nextVertex = vertex->next;
+    Edge   *edge       = vertex->first;
+    while (edge) {
+      Edge *nextEdge = edge->next;
+      free(edge);
+      edge = nextEdge;
+    }
+
+    Site_free(vertex->value);
+    free(vertex);
+    vertex = nextVertex;
+  }
+
+  g->n     = 0;
+  g->first = NULL;
+  g->last  = NULL;
+}
+
+bool File_loadIntoIndex(Index *index, const char *sitesPath,
+                        const char *linksPath) {
+  if (!index || !index->graph || !sitesPath || !linksPath ||
+      strcmp(sitesPath, linksPath) == 0)
+    return false;
+
+  Graph *loaded = Graph_alloc();
+  if (!loaded)
+    return false;
+
+  bool ok = File_readSites(loaded, sitesPath) &&
+            File_readLinks(loaded, linksPath);
+  if (!ok) {
+    File_freeGraphContents(loaded);
+    free(loaded);
+    return false;
+  }
+
+  Index *newIndex = Index_fromGraph(loaded);
+  if (!newIndex) {
+    File_freeGraphContents(loaded);
+    free(loaded);
+    return false;
+  }
+
+  Graph *target = index->graph;
+  Graph  previousGraph = *target;
+  *target              = *loaded;
+  loaded->n            = 0;
+  loaded->first        = NULL;
+  loaded->last         = NULL;
+
+  Index previousIndex = *index;
+  *index              = *newIndex;
+  *newIndex           = previousIndex;
+  index->graph        = target;
+
+  File_freeGraphContents(&previousGraph);
+  Index_free(newIndex);
+  free(loaded);
+  return true;
 }
 
 bool File_readSites(Graph *g, const char *filename) {
